@@ -12,7 +12,7 @@ import exit msvcrt.dll    ; exit is a function that ends the calling process. It
 segment data use32 class=data
     a dd 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
     len equ ($ - a) / 4
-    src dd 10
+    src dd 2
     
     result dd -1
     left dd 0
@@ -26,28 +26,20 @@ segment code use32 class=code
         jbe repetitive
         jmp endOfBinary
     getMid:
-        mov edx, 0
         mov eax, [left]
         add eax, [right]
         shr eax, 1
         mov [mid], eax
-        mov eax, 0
-        mov ebx, 0
-        mov edx, 0
         jmp resumeGetMid
     pushRes:
         mov eax, [mid]
         mov [result], eax
-        mov eax, 0
         jmp endOfBinary
     checkEquality:
         mov ebx, a
         mov ecx, [mid]
         mov eax, [ebx + ecx * 4]
         cmp eax, [src]
-        mov eax, 0
-        mov ebx, 0
-        mov ecx, 0
         jz pushRes
         jmp resumeCheckEquality
     isElemLower:
@@ -55,16 +47,12 @@ segment code use32 class=code
         mov eax, [mid]
         inc eax
         mov [left], eax
-        mov eax, 0
-        mov ecx, 0
         jmp resumeCheckSide
     isElemGreater:
         mov ecx, 2
         mov eax, [mid]
         dec eax
         mov [right], eax
-        mov eax, 0
-        mov ecx, 0
         jmp resumeCheckSide
     checkSide:
         mov ebx, a

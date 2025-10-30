@@ -1,0 +1,84 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit               ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+     9                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    10                                  
+    11                                  ; our data is declared here (the variables needed by our program)
+    12                                  segment data use32 class=data
+    13 00000000 010000000200000003-         a dd 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+    13 00000009 000000040000000500-
+    13 00000012 000006000000070000-
+    13 0000001B 000800000009000000-
+    13 00000024 0A000000           
+    14                                      len equ ($ - a) / 4
+    15 00000028 02000000                    src dd 2
+    16                                      
+    17 0000002C FFFFFFFF                    result dd -1
+    18 00000030 00000000                    left dd 0
+    19 00000034 09000000                    right dd len - 1
+    20 00000038 <res 00000004>              mid resd 1
+    21                                  ; our code starts here
+    22                                  segment code use32 class=code
+    23                                      checkRepetitive:
+    24 00000000 A1[30000000]                    mov eax, [left]
+    25 00000005 3B05[34000000]                  cmp eax, [right]
+    26 0000000B 7676                            jbe repetitive
+    27 0000000D EB7F                            jmp endOfBinary
+    28                                      getMid:
+    29 0000000F A1[30000000]                    mov eax, [left]
+    30 00000014 0305[34000000]                  add eax, [right]
+    31 0000001A D1E8                            shr eax, 1
+    32 0000001C A3[38000000]                    mov [mid], eax
+    33 00000021 EB62                            jmp resumeGetMid
+    34                                      pushRes:
+    35 00000023 A1[38000000]                    mov eax, [mid]
+    36 00000028 A3[2C000000]                    mov [result], eax
+    37 0000002D EB5F                            jmp endOfBinary
+    38                                      checkEquality:
+    39 0000002F BB[00000000]                    mov ebx, a
+    40 00000034 8B0D[38000000]                  mov ecx, [mid]
+    41 0000003A 8B048B                          mov eax, [ebx + ecx * 4]
+    42 0000003D 3B05[28000000]                  cmp eax, [src]
+    43 00000043 74DE                            jz pushRes
+    44 00000045 EB40                            jmp resumeCheckEquality
+    45                                      isElemLower:
+    46 00000047 B901000000                      mov ecx, 1
+    47 0000004C A1[38000000]                    mov eax, [mid]
+    48 00000051 40                              inc eax
+    49 00000052 A3[30000000]                    mov [left], eax
+    50 00000057 EB30                            jmp resumeCheckSide
+    51                                      isElemGreater:
+    52 00000059 B902000000                      mov ecx, 2
+    53 0000005E A1[38000000]                    mov eax, [mid]
+    54 00000063 48                              dec eax
+    55 00000064 A3[34000000]                    mov [right], eax
+    56 00000069 EB1E                            jmp resumeCheckSide
+    57                                      checkSide:
+    58 0000006B BB[00000000]                    mov ebx, a
+    59 00000070 8B0D[38000000]                  mov ecx, [mid]
+    60 00000076 8B048B                          mov eax, [ebx + ecx * 4]
+    61 00000079 3B05[28000000]                  cmp eax, [src]
+    62                                          
+    63 0000007F 7CC6                            jl isElemLower
+    64 00000081 EBD6                            jmp isElemGreater
+    65                                      start:
+    66                                          repetitive:
+    67 00000083 EB8A                                jmp getMid
+    68                                              resumeGetMid:
+    69                                              
+    70 00000085 EBA8                                jmp checkEquality
+    71                                              resumeCheckEquality:
+    72                                              
+    73 00000087 EBE2                                jmp checkSide
+    74                                              resumeCheckSide:
+    75                                              
+    76 00000089 E972FFFFFF                          jmp checkRepetitive
+    77                                          endOfBinary:
+    78 0000008E A1[2C000000]                        mov eax, [result]
+    79 00000093 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    80 00000095 FF15[00000000]                  call    [exit]       ; call exit to terminate the program
