@@ -23,7 +23,8 @@ segment code use32 class=code
     checkRepetitive:
         mov eax, [left]
         cmp eax, [right]
-        jmp resumeCheckRepetitive
+        jbe repetitive
+        jmp endOfBinary
     getMid:
         mov edx, 0
         mov eax, [left]
@@ -86,9 +87,6 @@ segment code use32 class=code
             resumeCheckSide:
             
             jmp checkRepetitive
-            resumeCheckRepetitive:
-            
-            jbe repetitive
         endOfBinary:
             mov eax, [result]
         push    dword 0      ; push the parameter for exit onto the stack
