@@ -88,10 +88,12 @@
     84                                              
     85 000000D2 EBDF                                jmp checkSide
     86                                              resumeCheckSide:
-    87 000000D4 E927FFFFFF                          jmp checkRepetitive
-    88                                              resumeCheckRepetitive:
-    89 000000D9 76F0                                jbe repetitive
-    90                                          endOfBinary:
-    91 000000DB A1[2C000000]                        mov eax, [result]
-    92 000000E0 6A00                            push    dword 0      ; push the parameter for exit onto the stack
-    93 000000E2 FF15[00000000]                  call    [exit]       ; call exit to terminate the program
+    87                                              
+    88 000000D4 E927FFFFFF                          jmp checkRepetitive
+    89                                              resumeCheckRepetitive:
+    90                                              
+    91 000000D9 76F0                                jbe repetitive
+    92                                          endOfBinary:
+    93 000000DB A1[2C000000]                        mov eax, [result]
+    94 000000E0 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    95 000000E2 FF15[00000000]                  call    [exit]       ; call exit to terminate the program
