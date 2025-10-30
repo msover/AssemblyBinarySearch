@@ -29,8 +29,7 @@ segment code use32 class=code
         mov edx, 0
         mov eax, [left]
         add eax, [right]
-        mov ebx, 2
-        div ebx
+        shr eax, 1
         mov [mid], eax
         mov eax, 0
         mov ebx, 0
